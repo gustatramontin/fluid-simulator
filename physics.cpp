@@ -1,12 +1,18 @@
 #include "physics.hpp"
 #include <cmath>
 
-Physics::Physics(int num_of_particles): box_size{Vec(300,300)} {
+Physics::Physics(int num_of_particles): box_size{Vec(300,300)}, n_particles{num_of_particles} {
+
     double gap = 10;
-    int square_size = sqrt(num_of_particles);
+    int square_size = sqrt(n_particles);
+
+    volume = box_size.x*(box_size.y/2);
+    fluid_density = 1;
+
     for (int x=-square_size/2; x<square_size/2; x++) {
         for (int y=-square_size/2; y<square_size/2; y++) {
-            Particle p(Vec(x,y)*gap);
+            Particle p(Vec(x,y)*gap, fluid_density*(volume/n_particles));
+
             particles.push_back(p);
         }
     }
@@ -14,14 +20,14 @@ Physics::Physics(int num_of_particles): box_size{Vec(300,300)} {
 
 double Physics::W(Vec x) {
     double r = smoothing_radius;
-    double a = 5.0/(15.0*M_PI*r*r);
-    double dist = (x).mag();
+    double a = 5.0/(14.0*M_PI*r*r);
+    double dist = x.mag();
 
     double q = dist/r;
 
-    if (q >= 0*r && q < 1*r)
+    if (q >= 0 && q < 1)
         return a*(pow(2-q,3) - 4*pow(1-q,3));
-    if (q >= 1*r && q < 2*r)
+    if (q >= 1 && q < 2)
         return a*pow(2-q,3);
     else return 0;
     
@@ -74,16 +80,18 @@ double Physics::pressure(Particle i) {
 Vec Physics::pressure_force(Particle i) {
     Vec f(0,0);
     for (Particle j : particles) {
-        f += -j.m*(i.pressure/(i.density*i.density) + j.pressure/(j.density*j.density))*grad_W(i.x-j.x);
+        f += j.m*(i.pressure/(i.density*i.density) + j.pressure/(j.density*j.density))*grad_W(i.x-j.x);
 
         //std::cout << grad_W(i.x, j.x).x << " " << grad_W(i.x, j.x).y << std::endl;
     }
 
-    return f;
+
+
+    return -1*f;
 }
 void Physics::step() {
 
-    for (Particle &p : particles) { 
+    for (Particle &p : particles) {
         p.density = density(p);
         p.pressure = pressure(p);
 
@@ -91,23 +99,36 @@ void Physics::step() {
     }
 
     for (Particle &p : particles) {
-        Vec gravityf = Vec(0,-1);
+        Vec gravityf = Vec(0,-0.1);
         Vec pressuref = pressure_force(p);
 
         apply_force(p, gravityf);
         apply_force(p, pressuref);
-        //std::cout << pressuref.x << " " << pressuref.y << std::endl;
+        std::cout << pressuref << std::endl;
 
 
-        move(p);
         resolve_wall_collision(p);
+        move(p);
     }
 }
 
 void Physics::apply_force(Particle &p, Vec f) {
-    p.v += f;
+    p.v += f*1;
 }
 
 void Physics::move(Particle &p) {
     p.x += p.v;
+}
+
+void Physics::resolve_wall_collision(Particle &p) {
+	double velocity_loss = 0.8;
+
+	if (abs(p.x.x) > box_size.x/2) {
+		p.x.x = box_size.x/2 * p.x.x/abs(p.x.x);
+		p.v.x *= -1 * velocity_loss;
+	}
+	if (abs(p.x.y) > box_size.y/2) {
+		p.x.y = box_size.y/2 * p.x.y/abs(p.x.y);
+		p.v.y *= -1 * velocity_loss;
+	}
 }

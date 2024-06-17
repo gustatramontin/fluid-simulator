@@ -3,11 +3,11 @@
 
 
 int main() {
-    Physics f(20*20);
+    Physics f(300);
     Visuals v(500,500);
     v.set_center(500/2, 500/2);
 
-    for (int i=0; i<=100; i++) {
+    for (int i=0; i<=1000; i++) {
         v.clear();
         f.step();
 

@@ -14,7 +14,7 @@ pixel Visuals::to_pixel(Vec x) {
 }
 
 void Visuals::draw(Particle p) {
-   SDL_SetRenderDrawColor(r, 0, 0, 0xFF, 0xFF);
+   SDL_SetRenderDrawColor(r, 0, 0xFF, 0xFF, 0xFF);
     SDL_RenderDrawPoint(r, to_pixel(p.x).first, to_pixel(p.x).second);
 }
 

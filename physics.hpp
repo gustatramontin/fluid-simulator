@@ -56,15 +56,18 @@ class Particle {
 public:
     Vec x, v;
     double m, density, pressure;
-    Particle(Vec x): x{x}, v{0,0}, m{1} {}
+    Particle(Vec x, double m): x{x}, v{0,0}, m{m} {}
 };
 
 class Physics {
 public:
 
     Vec box_size;
-    double fluid_density = 1;
-    double smoothing_radius = 1;
+    double fluid_density;
+    double smoothing_radius = 10;
+    double volume;
+
+    int n_particles;
 
 
     std::vector<Particle> particles;
@@ -80,16 +83,5 @@ public:
     void apply_force(Particle &p, Vec f);
     void move(Particle &p);
 
-    void resolve_wall_collision(Particle &p) {
-        double velocity_loss = 0.5;
-
-        if (abs(p.x.x) > box_size.x/2) {
-            p.x.x = box_size.x/2 * p.x.x/abs(p.x.x);
-            p.v.x *= -1 * velocity_loss;
-        }
-        if (abs(p.x.y) > box_size.y/2) {
-            p.x.y = box_size.y/2 * p.x.y/abs(p.x.y);
-            p.v.y *= -1 * velocity_loss;
-        }
-    }
+    void resolve_wall_collision(Particle &p);
 };
