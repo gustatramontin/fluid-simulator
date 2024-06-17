@@ -2,7 +2,7 @@
 #include <cmath>
 
 Physics::Physics(int num_of_particles): box_size{Vec(300,300)} {
-    double gap = 1;
+    double gap = 10;
     int square_size = sqrt(num_of_particles);
     for (int x=-square_size/2; x<square_size/2; x++) {
         for (int y=-square_size/2; y<square_size/2; y++) {
@@ -12,9 +12,10 @@ Physics::Physics(int num_of_particles): box_size{Vec(300,300)} {
     }
 }
 
-double Physics::W(Vec xi, Vec xj, double r) {
+double Physics::W(Vec x) {
+    double r = smoothing_radius;
     double a = 5.0/(15.0*M_PI*r*r);
-    double dist = (xi - xj).mag();
+    double dist = (x).mag();
 
     double q = dist/r;
 
@@ -27,11 +28,12 @@ double Physics::W(Vec xi, Vec xj, double r) {
     
 }
 // Todo: calculate for any r
-Vec Physics::grad_W(Vec xi, Vec xj) {
-    double r = smoothing_radius;
+Vec Physics::grad_W(Vec x) {
+    /*double r = smoothing_radius;
     double a = 5.0/(15.0*M_PI*r*r);
 
     double dist = (xi - xj).mag();
+    if (dist == 0) return Vec(0, 0);
 
     double q = dist/r;
 
@@ -41,14 +43,23 @@ Vec Physics::grad_W(Vec xi, Vec xj) {
     if (q >= 1*r && q < 2*r)
         res = a*-3*pow(2-q,2);
 
-    return -1*((xi-xj)*(1/dist))*res;
+    return -1*((xi-xj)*(1/dist))*res;*/
+
+
+    double step = 0.001f;
+    double dx = W(x + Vec(1,0)*step) - W(x);
+    double dy = W(x + Vec(0,1)*step) - W(x);
+
+    Vec grad = Vec(dx,dy)/step;
+
+    return grad;
 }
 
 
 double Physics::density(Particle i) {
     double rho = 0;
     for (Particle p : particles) {
-        rho += p.m*W(i.x, p.x, smoothing_radius);
+        rho += p.m*W(i.x-p.x);
 
     }
 
@@ -63,8 +74,7 @@ double Physics::pressure(Particle i) {
 Vec Physics::pressure_force(Particle i) {
     Vec f(0,0);
     for (Particle j : particles) {
-        if ((i.x - j.x).mag() == 0) continue;
-        f += -j.m*(i.pressure/(i.density*i.density) + j.pressure/(j.density*j.density))*grad_W(i.x, j.x);
+        f += -j.m*(i.pressure/(i.density*i.density) + j.pressure/(j.density*j.density))*grad_W(i.x-j.x);
 
         //std::cout << grad_W(i.x, j.x).x << " " << grad_W(i.x, j.x).y << std::endl;
     }
@@ -84,7 +94,7 @@ void Physics::step() {
         Vec gravityf = Vec(0,-1);
         Vec pressuref = pressure_force(p);
 
-        //apply_force(p, gravityf);
+        apply_force(p, gravityf);
         apply_force(p, pressuref);
         //std::cout << pressuref.x << " " << pressuref.y << std::endl;
 

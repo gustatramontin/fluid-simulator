@@ -26,6 +26,9 @@ class Vec {
         friend Vec operator*(const Vec& v, const double a) {
             return Vec(v.x*a, v.y*a);
         }
+        friend Vec operator/(const Vec& v, const double a) {
+            return Vec(v.x/a, v.y/a);
+        }
         
         Vec operator=(const Vec& v) {
             x = v.x;
@@ -66,8 +69,8 @@ public:
 
     std::vector<Particle> particles;
     Physics(int num_of_particles);
-    double W(Vec xi, Vec xj, double r);
-    Vec grad_W(Vec xi, Vec xj);
+    double W(Vec x);
+    Vec grad_W(Vec x);
 
     double density(Particle i);
     double pressure(Particle i);

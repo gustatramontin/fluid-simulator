@@ -3,7 +3,7 @@
 
 
 int main() {
-    Physics f(10*10);
+    Physics f(20*20);
     Visuals v(500,500);
     v.set_center(500/2, 500/2);
 
