@@ -1,7 +1,7 @@
 
 #include "visuals.hpp"
 
-Visuals::Visuals(int width, int height): width{width}, height{height}, offset_x{0}, offset_y{0} {
+Visuals::Visuals(): width{WIDTH}, height{HEIGHT}, offset_x{0}, offset_y{0} {
 	w = SDL_CreateWindow("Fluid Simulator v2", 0,0, width, height, SDL_WINDOW_SHOWN);
         r = SDL_CreateRenderer( w, -1, SDL_RENDERER_ACCELERATED );
 }
@@ -11,6 +11,11 @@ pixel Visuals::to_pixel(Vec x) {
     int py = -floor(x.y) + offset_y;
 
     return std::make_pair(px, py);
+}
+
+void Visuals::toggle_color(SDL_Color c) {
+    rgba = c;
+    use_default_color = !use_default_color;
 }
 
 void Visuals::draw(Particle p) {
@@ -25,7 +30,143 @@ void Visuals::draw_rect(Vec x, Vec s) {
     SDL_RenderDrawRect(r, &rect);
 }
 
+void Visuals::draw_line(pixel p1, pixel p2) {
+    
+    SDL_Color color = rgba;
+    if (use_default_color)
+        color = {0x00, 0x00, 0xFF, 0xFF};
+        
+
+   SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLine(r, p1.first, p1.second, p2.first, p2.second);
+}
+
 void Visuals::draw_pressure() {
+
+}
+
+bool in_bounds(int x, int y) {
+    return x/GRID_RATIO <= WIDTH/GRID_RATIO && x >= 0 && y/GRID_RATIO <= HEIGHT/GRID_RATIO && y >= 0;
+}
+
+void grid_circle_set(Grid & g, pixel pos,int r) {
+    if (r == 0) return;
+
+    int x = pos.first;
+    int y = pos.second;
+   
+    if (in_bounds(x,y))
+        g[G(y)][G(x)] += 1;
+
+    grid_circle_set(g, std::make_pair(x,y+1), r-1);
+    grid_circle_set(g, std::make_pair(x,y-1), r-1);
+    grid_circle_set(g, std::make_pair(x+1,y), r-1);
+    grid_circle_set(g, std::make_pair(x-1,y), r-1);
+}
+
+Grid Visuals::make_grid(std::vector<Particle> particles, double h) {
+
+    Grid marching_squares_grid;
+    std::array<int, WIDTH/GRID_RATIO> zero_row;
+    zero_row.fill(0);
+    marching_squares_grid.fill(zero_row);
+    for (Particle p : particles) {
+        pixel pos = to_pixel(p.x);
+
+        int x = pos.first;
+        int y = pos.second;
+
+        grid_circle_set(marching_squares_grid, pos, 4);
+    }
+
+    for (auto & row : marching_squares_grid) {
+        for (auto & col : row) {
+            if (col >= isovalue)
+                col = 1;
+        }
+    }
+
+    return marching_squares_grid;
+}
+
+void Visuals::draw_grid() {
+    for (int x=0; x<WIDTH/GRID_RATIO; x++) {
+        toggle_color({255,255,255,255});
+        draw_line(std::make_pair(x*GRID_RATIO,0), std::make_pair(x*GRID_RATIO, HEIGHT));
+        toggle_color({255,255,255,50});
+    }
+    for (int y=0; y<HEIGHT/GRID_RATIO; y++) {
+        draw_line(std::make_pair(0,y*GRID_RATIO), std::make_pair(WIDTH, y*GRID_RATIO));
+    }
+}
+void Visuals::draw_contour(std::vector<Particle> particles, double h) {
+
+    Grid g = make_grid(particles, h);
+
+    for (int r=0; r<g.size()-1; r++) {
+        for (int c=0; c<g[0].size()-1; c++) {
+            int contour_case = 8*g[r][c] + 4*g[r][c+1] + 2*g[r+1][c+1] + 1*g[r+1][c];
+
+            draw_grid_case(std::make_pair(c*GRID_RATIO,r*GRID_RATIO), contour_case);
+
+        }
+    }
+
+}
+
+void Visuals::draw_grid_case(pixel pos, int contour_case) {
+
+    int x = pos.first;
+    int y = pos.second;
+
+    int cell_w = GRID_RATIO;
+    int cell_h = GRID_RATIO;
+
+    pixel c1,c2,c3,c4;
+
+    c1 = std::make_pair(x+cell_w/2,y);
+    c2 = std::make_pair(x+cell_w,y+cell_h/2);
+    c3 = std::make_pair(x+cell_w/2,y+cell_h);
+    c4 = std::make_pair(x,y+cell_h/2);
+
+
+    switch (contour_case) {
+    case 0:
+    case 15:
+        break;
+    case 1:
+    case 14:
+            draw_line(c4,c3);
+        break;
+    case 2:
+    case 13:
+            draw_line(c3, c2);
+        break;
+    case 3:
+    case 12:
+            draw_line(c4, c2);
+        break;
+    case 4:
+    case 11:
+            draw_line(c1,c2);
+        break;
+    case 5:
+            draw_line(c4,c1);
+            draw_line(c3,c2);
+        break;
+    case 6:
+    case 9:
+            draw_line(c1,c3);
+        break;
+    case 7:
+    case 8:
+            draw_line(c4,c1);
+        break;
+    case 10:
+            draw_line(c1,c2);
+            draw_line(c4,c3);
+        break;
+    }
 
 }
 

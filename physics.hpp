@@ -29,6 +29,10 @@ class Vec {
         friend Vec operator/(const Vec& v, const double a) {
             return Vec(v.x/a, v.y/a);
         }
+        friend bool operator==(const Vec & u, const Vec & v) {
+            double threshold = 0.001f;
+            return abs(u.x - v.x) <= threshold && abs(u.y - v.y) <= threshold;
+        }
         
         Vec operator=(const Vec& v) {
             x = v.x;
@@ -44,6 +48,7 @@ class Vec {
             *this = *this * a;
             return *this;
         }
+
         friend std::ostream& operator<<(std::ostream& os, const Vec& obj) {
 
             return os << "<"<<obj.x<<","<<obj.y<<">";
@@ -55,15 +60,22 @@ class Vec {
 class Particle {
 public:
     Vec x, v;
+    Vec next_x;
     double m, density, pressure;
-    Particle(Vec x, double m): x{x}, v{0,0}, m{m} {}
+    Particle(Vec x, double m): x{x},next_x{x}, v{0,0}, m{m} {}
+    void swap_x() {
+        Vec old = x;
+        x = next_x;
+        next_x = old;
+    };
 };
 
 class Physics {
 public:
 
     Vec box_size;
-    double fluid_density;
+    double fluid_density = 1;
+    double pressure_multiplier = 25.1;
     double smoothing_radius = 10;
     double volume;
 
