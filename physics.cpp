@@ -1,7 +1,7 @@
 #include "physics.hpp"
 #include <cmath>
 
-Physics::Physics(int num_of_particles): box_size{Vec(400,400)}, n_particles{num_of_particles} {
+Physics::Physics(int num_of_particles, double rho, double k, double h): box_size{Vec(400,400)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
 
     double gap = 11;
     int square_size = sqrt(n_particles);

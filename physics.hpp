@@ -74,16 +74,16 @@ class Physics {
 public:
 
     Vec box_size;
-    double fluid_density = 1;
-    double pressure_multiplier = 25.1;
-    double smoothing_radius = 10;
+    double fluid_density;
+    double pressure_multiplier;
+    double smoothing_radius;
     double volume;
 
     int n_particles;
 
 
     std::vector<Particle> particles;
-    Physics(int num_of_particles);
+    Physics(int num_of_particles, double rho, double k, double h);
     double W(Vec x);
     Vec grad_W(Vec x);
 

@@ -4,6 +4,7 @@
 #include <thread>
 
 struct Config {
+    bool pause;
     bool draw_grid;
     bool draw_particle;
     bool draw_contour;
@@ -16,11 +17,11 @@ struct Config {
 
 void simulator(struct Config & config) {
 
-    Physics f(600);
+    Physics f(600, config.fluid_density, config.pressure_multiplier, config.smoothing_radius);
     Visuals v;
     Events e;
     v.set_center(500/2, 500/2);
-    
+
     for (;;) {
         e.pool_events();
 
@@ -31,11 +32,12 @@ void simulator(struct Config & config) {
         if (e.quit) break;
 
         v.clear();
-        if (!e.pause)
+        if (!config.pause )
             f.step();
 
         if (config.draw_grid)
             v.draw_grid();
+
         v.draw_rect(Vec(1,1)*(500/2)-f.box_size*0.5, f.box_size);
         for (Particle p : f.particles) {
             if (config.draw_particle)
@@ -51,7 +53,7 @@ void simulator(struct Config & config) {
 }
 int main() {
     
-    struct Config config = {false, true, true, 1, 25.1, 10};
+    struct Config config = {true, false, true, true, 1, 25.1, 10};
     std::thread th1(simulator, std::ref(config));
 
 
@@ -61,9 +63,10 @@ int main() {
         double v;
         std::cin >> c >> v;
 
-        std::cout << v << std::endl;
-
         switch (c) {
+            case '!':
+                config.pause = (bool) (int) v;
+                break;
             case 'g':
                 config.draw_grid = (int) v;
                 break;

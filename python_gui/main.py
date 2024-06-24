@@ -8,6 +8,8 @@ window = Tk()
 window.title("Fluid Simulator Constants")
 window.geometry("200x800-20+0")
 
+paused = True
+pause_text= StringVar(value="resume")
 grid_value = StringVar(value="0")
 particle_value = StringVar(value="1")
 contour_value = StringVar(value="1")
@@ -24,6 +26,16 @@ check_button = {
 def update(var, value):
     p.stdin.write(f"{var} {value}\n".encode())
     p.stdin.flush()
+
+def on_pause():
+    global pause_text, paused
+    if not paused:
+        pause_text.set("resume")
+    else:
+        pause_text.set("STOP")
+
+    paused = not paused
+    update('!', int(paused))
 
 
 def on_grid():
@@ -46,6 +58,8 @@ def on_smoothing(e):
     global smoothin_value
     update("h", smoothing_value.get())
 
+pause_btn = Button(textvariable=pause_text, command=on_pause);
+
 draw_grid = Checkbutton(text="Display Grid", command=on_grid, variable=grid_value, **check_button)
 draw_particles = Checkbutton(text="Show Particles", command=on_particles, variable=particle_value, **check_button)
 draw_contour = Checkbutton(text="Draw Contour", command=on_contour, variable=contour_value, **check_button)
@@ -64,7 +78,7 @@ label3 = Label(text="Smoothin Radius")
 label32 = Label(textvariable=smoothing_value)
 
 
-widgets = [draw_grid, draw_particles, draw_contour, label1, fluid_density, label12, label2, pressure_multiplier, label22, label3, smoothing_radius, label32]
+widgets = [pause_btn, draw_grid, draw_particles, draw_contour, label1, fluid_density, label12, label2, pressure_multiplier, label22, label3, smoothing_radius, label32]
 
 for w in widgets:
     w.pack()
