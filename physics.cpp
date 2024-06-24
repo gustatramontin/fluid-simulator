@@ -1,9 +1,9 @@
 #include "physics.hpp"
 #include <cmath>
 
-Physics::Physics(int num_of_particles, double rho, double k, double h): box_size{Vec(400,400)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
+Physics::Physics(int num_of_particles, double rho, double k, double h): box_size{Vec(400,400)}, external_force{Vec(0,0)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
 
-    double gap = 11;
+    double gap = 2;
     int square_size = sqrt(n_particles);
 
     volume = box_size.x*box_size.y/2;
@@ -113,6 +113,9 @@ void Physics::step() {
         apply_force(p, gravityf);
         //std::cout << pressuref << std::endl;
 
+        if ( use_external_force )
+            retraction_force(p, external_force);
+
 
         move(p);
         resolve_wall_collision(p);
@@ -125,6 +128,15 @@ void Physics::apply_force(Particle &p, Vec f) {
 
 void Physics::move(Particle &p) {
     p.x += p.v;
+}
+
+void Physics::retraction_force(Particle & p, Vec x) {
+        Vec dir = (p.x - x);
+
+
+        double r = 50;
+        if (dir.mag() <= r)
+            apply_force(p, force_dir*(dir/dir.mag())*(r-dir.mag()));
 }
 
 void Physics::resolve_wall_collision(Particle &p) {

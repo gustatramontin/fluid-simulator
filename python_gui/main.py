@@ -64,8 +64,6 @@ draw_grid = Checkbutton(text="Display Grid", command=on_grid, variable=grid_valu
 draw_particles = Checkbutton(text="Show Particles", command=on_particles, variable=particle_value, **check_button)
 draw_contour = Checkbutton(text="Draw Contour", command=on_contour, variable=contour_value, **check_button)
 
-
-
 fluid_density = Scale(from_=0.1, to=2, command=on_fluid, variable=fluid_value)
 pressure_multiplier = Scale(from_=0.1, to=30, command=on_pressure, variable=pressure_value)
 smoothing_radius = Scale(from_=1, to=20, command=on_smoothing, variable=smoothing_value)
@@ -86,3 +84,4 @@ for w in widgets:
 p = Popen(['../fluid-simulator'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
 window.mainloop()
+p.terminate()

@@ -13,6 +13,20 @@ void Events::pool_events() {
                 break;
             case SDL_KEYUP:
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                ext_force = true;
+                if (e.button.button == SDL_BUTTON_LEFT)
+                    ext_force_dir = 1;
+                else
+                    ext_force_dir = -1;
+                break;
+            case SDL_MOUSEBUTTONUP:
+                ext_force = false;
+                break;
+            case SDL_MOUSEMOTION:
+                mouse_x = e.motion.x;
+                mouse_y = e.motion.y;
+                break;
             case SDL_QUIT:
                 quit = true;
                 break;

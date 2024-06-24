@@ -27,13 +27,14 @@ class Visuals {
     double offset_x, offset_y;
 
     int grid_ratio = 10;
-    double isovalue = 2;
+    double isovalue = 1;
 
 
     public:
         Visuals();
 
         std::pair<int, int> to_pixel(Vec x);
+        Vec to_vec(int px, int py);
 
         void toggle_color(SDL_Color c);
         void draw(Particle p);
@@ -43,8 +44,8 @@ class Visuals {
         void draw_pressure();
         void draw();
 
-        Grid make_grid(std::vector<Particle> particles,double h);
-        void draw_contour(std::vector<Particle> particles, double h);
+        Grid make_grid(std::vector<Particle> particles);
+        void draw_contour(std::vector<Particle> particles);
         void draw_grid_case(pixel pos, int contour_case);
 
         void show();

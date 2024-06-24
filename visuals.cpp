@@ -12,6 +12,12 @@ pixel Visuals::to_pixel(Vec x) {
 
     return std::make_pair(px, py);
 }
+Vec Visuals::to_vec(int px, int py) {
+    double x = px - offset_x;
+    double y = -(py - offset_y);
+
+    return Vec(x,y);
+}
 
 void Visuals::toggle_color(SDL_Color c) {
     rgba = c;
@@ -45,40 +51,18 @@ void Visuals::draw_pressure() {
 
 }
 
-bool in_bounds(int x, int y) {
-    return x/GRID_RATIO <= WIDTH/GRID_RATIO && x >= 0 && y/GRID_RATIO <= HEIGHT/GRID_RATIO && y >= 0;
-}
-
-void grid_circle_set(Grid & g, pixel pos,int r) {
-    if (r == 0) return;
-
-    int x = pos.first;
-    int y = pos.second;
-   
-    if (in_bounds(x,y))
-        g[G(y)][G(x)] += 1;
-
-    grid_circle_set(g, std::make_pair(x,y+1), r-1);
-    grid_circle_set(g, std::make_pair(x,y-1), r-1);
-    grid_circle_set(g, std::make_pair(x+1,y), r-1);
-    grid_circle_set(g, std::make_pair(x-1,y), r-1);
-}
-
-Grid Visuals::make_grid(std::vector<Particle> particles, double h) {
+Grid Visuals::make_grid(std::vector<Particle> particles) {
 
     Grid marching_squares_grid;
     std::array<int, WIDTH/GRID_RATIO> zero_row;
     zero_row.fill(0);
     marching_squares_grid.fill(zero_row);
-    for (Particle p : particles) {
-        pixel pos = to_pixel(p.x);
 
-        int x = pos.first;
-        int y = pos.second;
+      for (Particle p : particles) {
+          pixel pos = to_pixel(p.x);
 
-        grid_circle_set(marching_squares_grid, pos, 4);
-    }
-
+          marching_squares_grid[G(pos.second)][G(pos.first)] += 1;
+      }
     for (auto & row : marching_squares_grid) {
         for (auto & col : row) {
             if (col >= isovalue)
@@ -99,9 +83,9 @@ void Visuals::draw_grid() {
         draw_line(std::make_pair(0,y*GRID_RATIO), std::make_pair(WIDTH, y*GRID_RATIO));
     }
 }
-void Visuals::draw_contour(std::vector<Particle> particles, double h) {
+void Visuals::draw_contour(std::vector<Particle> particles) {
 
-    Grid g = make_grid(particles, h);
+    Grid g = make_grid(particles);
 
     for (int r=0; r<g.size()-1; r++) {
         for (int c=0; c<g[0].size()-1; c++) {

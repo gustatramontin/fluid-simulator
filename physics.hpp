@@ -74,6 +74,9 @@ class Physics {
 public:
 
     Vec box_size;
+    Vec external_force;
+    double force_dir = 1;
+    bool use_external_force = false;
     double fluid_density;
     double pressure_multiplier;
     double smoothing_radius;
@@ -94,6 +97,8 @@ public:
 
     void apply_force(Particle &p, Vec f);
     void move(Particle &p);
+
+    void retraction_force(Particle & p, Vec x);
 
     void resolve_wall_collision(Particle &p);
 };
