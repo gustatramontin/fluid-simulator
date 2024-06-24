@@ -91,11 +91,12 @@ Vec Physics::pressure_force(Particle i) {
     return -1*f;
 }
 void Physics::step() {
-    Vec gravityf = Vec(0,-1.0);
+    Vec gravityf = Vec(0,-1)*gravity_f;
 
     for (Particle &p : particles) {
         
-        apply_force(p, gravityf);
+        if (enable_gravity)
+            apply_force(p, gravityf);
         p.next_x = p.x + p.v;
 
         p.swap_x();
@@ -110,7 +111,9 @@ void Physics::step() {
         Vec pressuref = pressure_force(p);
 
         p.v = pressuref;
-        apply_force(p, gravityf);
+
+        if (enable_gravity)
+            apply_force(p, gravityf);
         //std::cout << pressuref << std::endl;
 
         if ( use_external_force )
@@ -136,7 +139,7 @@ void Physics::retraction_force(Particle & p, Vec x) {
 
         double r = 50;
         if (dir.mag() <= r)
-            apply_force(p, force_dir*(dir/dir.mag())*(r-dir.mag()));
+            apply_force(p, force_dir*(dir/dir.mag())*(r/dir.mag())*5);
 }
 
 void Physics::resolve_wall_collision(Particle &p) {

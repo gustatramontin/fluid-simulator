@@ -77,6 +77,10 @@ public:
     Vec external_force;
     double force_dir = 1;
     bool use_external_force = false;
+    bool enable_gravity = true;
+
+    double gravity_f = 1.0;
+
     double fluid_density;
     double pressure_multiplier;
     double smoothing_radius;

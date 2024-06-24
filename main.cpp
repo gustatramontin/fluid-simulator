@@ -9,6 +9,9 @@ struct Config {
     bool draw_particle;
     bool draw_contour;
 
+    bool gravity;
+    double gravity_f;
+
     double fluid_density;
     double pressure_multiplier;
     double smoothing_radius;
@@ -31,6 +34,9 @@ void simulator(struct Config & config) {
         f.use_external_force = e.ext_force;
         f.force_dir = e.ext_force_dir;
         f.external_force = v.to_vec(e.mouse_x, e.mouse_y);
+
+        f.enable_gravity = config.gravity;
+        f.gravity_f = config.gravity_f;
 
 
         if (e.quit) break;
@@ -57,7 +63,7 @@ void simulator(struct Config & config) {
 }
 int main() {
     
-    struct Config config = {true, false, true, true, false, 1, 25.1, 10};
+    struct Config config = {true, false, true, true, true, 1, 1, 25.1, 10};
     std::thread th1(simulator, std::ref(config));
 
     th1.detach();
@@ -80,6 +86,12 @@ int main() {
                 break;
             case 'c':
                 config.draw_contour = (int) v;
+                break;
+            case 'G':
+                config.gravity = (int) v;
+                break;
+            case 'O':
+                config.gravity_f = v;
                 break;
             case 'f':
                 config.fluid_density = v;
