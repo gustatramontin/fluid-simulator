@@ -30,6 +30,9 @@ def update(var, value):
     p.stdin.write(f"{var} {value}\n".encode())
     p.stdin.flush()
 
+def close_simulator()
+    update("q", 1)
+
 def on_pause():
     global pause_text, paused
     if not paused:
@@ -98,4 +101,6 @@ for w in widgets:
 p = Popen(['../fluid-simulator'], stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
 window.mainloop()
+
+close_simulator()
 p.terminate()
