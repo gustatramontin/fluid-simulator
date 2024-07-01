@@ -51,6 +51,7 @@ class Box {
 
 public:
     Box();
+    static double clamp(double x, double min, double max);
     std::vector<Segment> get_segments();
     static Box square(Point center, int size);
     Box & add_segment(Point p1, Point p2);

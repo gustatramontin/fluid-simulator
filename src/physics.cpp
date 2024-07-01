@@ -148,6 +148,6 @@ void Physics::resolve_wall_collision(Particle &p) {
         auto ps = box.point_outside_box(p.x);
         if (ps.first) {
             p.x = ps.second;
-            p.v *= -1*velocity_loss;
+            p.v = p.v.rotate(M_PI)*velocity_loss;
         }
 }

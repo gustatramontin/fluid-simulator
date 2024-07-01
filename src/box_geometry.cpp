@@ -3,9 +3,15 @@
 
 Box::Box() {}
 
+double Box::clamp(double x, double min, double max) {
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
+}
+
 Box Box::square(Point center, int size) {
     Box b;
-
+    
     Point corner1 = center + Point(-size/2, +size/2);
     Point corner2 =  corner1 + Point(size, 0);
     Point corner3 =  corner2 + Point(0, -size);
@@ -44,16 +50,17 @@ std::pair<bool, Point> Box::point_outside(Point p, Segment s) {
     Point upward_s2 = s.second.rotate_around(right_angle - angle, center);
     Point rotated_p = p.rotate_around(right_angle - angle, center);
 
-    bool p_in_segment_x_axis = rotated_p.x >= upward_s1.x && rotated_p.x <= upward_s2.x;
+    bool p_in_segment_x_axis = true || rotated_p.x >= upward_s1.x && rotated_p.x <= upward_s2.x;
     bool p_in_segment_y_axis = rotated_p.y <= upward_s1.y;
     
     bool is_point_outside = p_in_segment_x_axis && !p_in_segment_y_axis;
-    Point relocate = Point(rotated_p.x,upward_s1.y).rotate_around(- (right_angle-angle), center);
+    Point relocate = Point(clamp(rotated_p.x, upward_s1.x, upward_s2.x),upward_s1.y).rotate_around(- (right_angle-angle), center);
 
     return std::make_pair(is_point_outside, relocate);
 }
 
 std::pair<bool, Point> Box::point_outside_box(Point p) {
+
     for (Segment s : segments) {
         auto ps = point_outside(p,s);
         if (ps.first) return ps;
