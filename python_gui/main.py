@@ -30,7 +30,7 @@ def update(var, value):
     p.stdin.write(f"{var} {value}\n".encode())
     p.stdin.flush()
 
-def close_simulator()
+def close_simulator():
     update("q", 1)
 
 def on_pause():
