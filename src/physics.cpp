@@ -1,14 +1,14 @@
 #include "physics.hpp"
 
-Physics::Physics(int num_of_particles, double rho, double k, double h):external_force{Vec(0,0)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
+Physics::Physics(int num_of_particles, double rho, double k, double h): fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
 
     box = Box::square(Vec(0,0), 400);
     double gap = 2;
-    int square_size = sqrt(n_particles);
+    int square_size = sqrt(num_of_particles);
 
     volume = 400*400/2;
 
-    double particle_mass = fluid_density*(volume/n_particles);
+    double particle_mass = fluid_density*(volume/num_of_particles);
 
     for (int x=-square_size/2; x<square_size/2; x++) {
         for (int y=-square_size/2; y<square_size/2; y++) {
@@ -18,6 +18,9 @@ Physics::Physics(int num_of_particles, double rho, double k, double h):external_
         }
     }
 }
+
+std::vector<Particle> Physics::get_particles() {return particles;}
+Box Physics::get_box() {return box;}
 
 double Physics::W(Vec x) {
     double r = smoothing_radius;
@@ -91,12 +94,10 @@ Vec Physics::pressure_force(Particle i) {
     return -1*f;
 }
 void Physics::step() {
-    Vec gravityf = Vec(0,-1)*gravity_f;
 
     for (Particle &p : particles) {
         
-        if (enable_gravity)
-            apply_force(p, gravityf);
+        apply_force(p, gravity_f);
         p.next_x = p.x + p.v;
 
         p.swap_x();
@@ -112,12 +113,10 @@ void Physics::step() {
 
         p.v = pressuref;
 
-        if (enable_gravity)
-            apply_force(p, gravityf);
+        apply_force(p, gravity_f);
         //std::cout << pressuref << std::endl;
 
-        if ( use_external_force )
-            retraction_force(p, external_force);
+        retraction_force(p);
 
 
         move(p);
@@ -133,13 +132,14 @@ void Physics::move(Particle &p) {
     p.x += p.v;
 }
 
-void Physics::retraction_force(Particle & p, Vec x) {
+void Physics::retraction_force(Particle & p) {
+        Vec x = propulsion_position;
         Vec dir = (p.x - x);
 
 
         double r = 50;
         if (dir.mag() <= r)
-            apply_force(p, force_dir*(dir/dir.mag())*(r/dir.mag())*5);
+            apply_force(p, propulsion_scalar*(dir/dir.mag())*(r/dir.mag())*5);
 }
 
 void Physics::resolve_wall_collision(Particle &p) {

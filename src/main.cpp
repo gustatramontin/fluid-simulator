@@ -1,25 +1,26 @@
+#include "geometry.hpp"
 #include "physics.hpp"
 #include "visuals.hpp"
 #include "events.hpp"
 #include <thread>
 
-struct Config {
-    bool pause;
-    bool draw_grid;
-    bool draw_particle;
-    bool draw_contour;
+struct VisualsConfig {
+    bool pause = true;
+    bool draw_grid = false;
+    bool draw_particle = true;
+    bool draw_contour = true;
+};
+struct PhysicsConfig {
+    Vec gravity_f = Vec(0,-1);
 
-    bool gravity;
-    double gravity_f;
-
-    double fluid_density;
-    double pressure_multiplier;
-    double smoothing_radius;
+    double fluid_density = 1;
+    double pressure_multiplier = 20;
+    double smoothing_radius = 15;
 };
 
-void simulator(struct Config & config) {
+void simulator(struct PhysicsConfig & physicsConfig, struct VisualsConfig & visualsConfig) {
 
-    Physics f(1000, config.fluid_density, config.pressure_multiplier, config.smoothing_radius);
+    Physics f(1000, physicsConfig.fluid_density, physicsConfig.pressure_multiplier, physicsConfig.smoothing_radius);
     Visuals v;
     Events e;
     v.set_center(500/2, 500/2);
@@ -27,36 +28,34 @@ void simulator(struct Config & config) {
     for (;;) {
         e.pool_events();
 
-        f.fluid_density = config.fluid_density;
-        f.pressure_multiplier = config.pressure_multiplier;
-        f.smoothing_radius = config.smoothing_radius;
+        f.fluid_density = physicsConfig.fluid_density;
+        f.pressure_multiplier = physicsConfig.pressure_multiplier;
+        f.smoothing_radius = physicsConfig.smoothing_radius;
 
-        f.use_external_force = e.ext_force;
-        f.force_dir = e.ext_force_dir;
-        f.external_force = v.to_vec(e.mouse_x, e.mouse_y);
+        f.propulsion_scalar = e.ext_force;
+        f.propulsion_position = v.to_vec(e.mouse_x, e.mouse_y);
 
-        f.enable_gravity = config.gravity;
-        f.gravity_f = config.gravity_f;
+        f.gravity_f = physicsConfig.gravity_f;
 
 
         if (e.quit) break;
 
         v.clear();
-        if (!config.pause )
+        if (!visualsConfig.pause )
             f.step();
 
-        if (config.draw_grid)
+        if (visualsConfig.draw_grid)
             v.draw_grid();
 
 
-        v.draw(f.box);
-        for (Particle p : f.particles) {
-            if (config.draw_particle)
+        v.draw(f.get_box());
+        for (Particle p : f.get_particles()) {
+            if (visualsConfig.draw_particle)
                 v.draw(p);
          }
 
-        if (config.draw_contour)
-            v.draw_contour(f.particles);
+        if (visualsConfig.draw_contour)
+            v.draw_contour(f.get_particles());
 
         v.show();
         v.delay(10);
@@ -64,8 +63,9 @@ void simulator(struct Config & config) {
 }
 int main() {
     
-    struct Config config = {true, false, true, true, true, 1, 1, 25.1, 10};
-    std::thread th1(simulator, std::ref(config));
+    struct PhysicsConfig physicsConfig; 
+    struct VisualsConfig visualsConfig; 
+    std::thread th1(simulator, std::ref(physicsConfig), std::ref(visualsConfig));
 
     th1.detach();
 
@@ -77,31 +77,28 @@ int main() {
 
         switch (c) {
             case '!':
-                config.pause = (bool) (int) v;
+                visualsConfig.pause = (bool) v;
                 break;
             case 'g':
-                config.draw_grid = (int) v;
+                visualsConfig.draw_grid = (bool) v;
                 break;
             case 'p':
-                config.draw_particle = (int) v;
+                visualsConfig.draw_particle = (bool) v;
                 break;
             case 'c':
-                config.draw_contour = (int) v;
+                visualsConfig.draw_contour = (bool) v;
                 break;
             case 'G':
-                config.gravity = (int) v;
-                break;
-            case 'O':
-                config.gravity_f = v;
+                physicsConfig.gravity_f = Vec(0,-1)*v;
                 break;
             case 'f':
-                config.fluid_density = v;
+                physicsConfig.fluid_density = v;
                 break;
             case 'k':
-                config.pressure_multiplier = v;
+                physicsConfig.pressure_multiplier = v;
                 break;
             case 'h':
-                config.smoothing_radius = v;
+                physicsConfig.smoothing_radius = v;
                 break;
             case 'q':
                 quit = true;

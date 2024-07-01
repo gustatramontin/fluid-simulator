@@ -8,38 +8,35 @@
 
 
 class Physics {
-public:
 
     Box box;
-    Vec external_force;
-    double force_dir = 1;
-    bool use_external_force = false;
-    bool enable_gravity = true;
-
-    double gravity_f = 1.0;
-
-    double fluid_density;
-    double pressure_multiplier;
-    double smoothing_radius;
     double volume;
-
-    int n_particles;
-
-
     std::vector<Particle> particles;
-    Physics(int num_of_particles, double rho, double k, double h);
     double W(Vec x);
     Vec grad_W(Vec x);
 
     double density(Particle i);
     double pressure(Particle i);
     Vec pressure_force(Particle i);
-    void step();
 
     void apply_force(Particle &p, Vec f);
     void move(Particle &p);
 
-    void retraction_force(Particle & p, Vec x);
+    void retraction_force(Particle & p);
 
     void resolve_wall_collision(Particle &p);
+public:
+
+    double propulsion_scalar = 0;
+    Vec propulsion_position = Vec(0,0);
+    Vec gravity_f = Vec(0,-1);
+
+    double fluid_density;
+    double pressure_multiplier;
+    double smoothing_radius;
+
+    Physics(int num_of_particles, double rho, double k, double h);
+    std::vector<Particle> get_particles();
+    Box get_box();
+    void step();
 };

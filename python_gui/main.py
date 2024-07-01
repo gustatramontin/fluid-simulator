@@ -18,8 +18,8 @@ gravity_value = StringVar(value="1")
 gravity_scalar = StringVar(value="1")
 
 fluid_value = StringVar(value="1")
-pressure_value = StringVar(value="25.1")
-smoothing_value = StringVar(value="10")
+pressure_value = StringVar(value="20")
+smoothing_value = StringVar(value="15")
 
 check_button = {
         "onvalue": "1",
@@ -55,10 +55,10 @@ def on_contour():
     update("c", contour_value.get())
 def on_gravity():
     global gravity_value
-    update("G", gravity_value.get())
+    update("G", gravity_value)
 def on_gravity_f(e):
     global gravity_scalar;
-    update("O",gravity_scalar.get())
+    update("G",gravity_scalar.get())
 
 def on_fluid(e):
         global fluid_value
