@@ -1,12 +1,12 @@
 #include "physics.hpp"
-#include <cmath>
 
-Physics::Physics(int num_of_particles, double rho, double k, double h): box_size{Vec(400,400)}, external_force{Vec(0,0)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
+Physics::Physics(int num_of_particles, double rho, double k, double h):external_force{Vec(0,0)}, n_particles{num_of_particles}, fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
 
+    box = Box::square(Vec(0,0), 400);
     double gap = 2;
     int square_size = sqrt(n_particles);
 
-    volume = box_size.x*box_size.y/2;
+    volume = 400*400/2;
 
     double particle_mass = fluid_density*(volume/n_particles);
 
@@ -144,15 +144,10 @@ void Physics::retraction_force(Particle & p, Vec x) {
 
 void Physics::resolve_wall_collision(Particle &p) {
 	double velocity_loss = 0.80;
-        Vec boundary = box_size/2 - Vec(1,1)*2;
-
         
-	if (abs(p.x.x) > boundary.x) {
-		p.x.x = boundary.x * (p.x.x/abs(p.x.x));
-		p.v.x *= -1 * velocity_loss;
-	}
-	if (abs(p.x.y) > boundary.y) {
-		p.x.y = boundary.y * (p.x.y/abs(p.x.y));
-		p.v.y *= -1 * velocity_loss;
-	}
+        auto ps = box.point_outside_box(p.x);
+        if (ps.first) {
+            p.x = ps.second;
+            p.v *= -1*velocity_loss;
+        }
 }

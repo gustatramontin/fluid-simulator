@@ -6,6 +6,23 @@ double Vec::mag() {
     return sqrt(x*x + y*y);
 }
 
+Vec Vec::translate(double dx, double dy) {
+    return Vec (x+dx,y+dy);
+}
+
+Vec Vec::rotate(double angle) {
+    return Vec(x*cos(angle)  -y*sin(angle), x*sin(angle) + y*cos(angle));
+}
+
+Vec Vec::rotate_around(double angle, Vec p) {
+    Vec v(x,y);
+    v -= p;
+    v = v.rotate(angle);
+    v += p;
+
+    return v;
+}
+
 Vec operator+(const Vec& u, const Vec& v) {
     return Vec(u.x + v.x, u.y + v.y);
 }
@@ -39,6 +56,14 @@ Vec Vec::operator+=(const Vec& v) {
 }
 Vec Vec::operator*=(const double a) {
     *this = *this * a;
+    return *this;
+}
+Vec Vec::operator-=(const Vec& v) {
+    *this = *this - v;
+    return *this;
+}
+Vec Vec::operator/=(const double a) {
+    *this = *this / a;
     return *this;
 }
 

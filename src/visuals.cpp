@@ -46,6 +46,11 @@ void Visuals::draw_line(pixel p1, pixel p2) {
    SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
     SDL_RenderDrawLine(r, p1.first, p1.second, p2.first, p2.second);
 }
+void Visuals::draw(Box b) {
+    for (auto s : b.get_segments()) {
+        draw_line(to_pixel(s.first), to_pixel(s.second));
+    }
+}
 
 void Visuals::draw_pressure() {
 

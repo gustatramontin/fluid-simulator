@@ -10,7 +10,7 @@
 class Physics {
 public:
 
-    Vec box_size;
+    Box box;
     Vec external_force;
     double force_dir = 1;
     bool use_external_force = false;

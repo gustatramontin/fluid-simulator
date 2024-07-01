@@ -40,6 +40,7 @@ class Visuals {
         void draw(Particle p);
         void draw_rect(Vec x, Vec s);
         void draw_line(pixel p1, pixel p2);
+        void draw(Box b);
         void draw_grid();
         void draw_pressure();
         void draw();

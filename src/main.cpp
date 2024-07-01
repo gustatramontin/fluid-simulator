@@ -48,7 +48,8 @@ void simulator(struct Config & config) {
         if (config.draw_grid)
             v.draw_grid();
 
-        v.draw_rect(Vec(1,1)*(500/2)-f.box_size*0.5, f.box_size);
+
+        v.draw(f.box);
         for (Particle p : f.particles) {
             if (config.draw_particle)
                 v.draw(p);

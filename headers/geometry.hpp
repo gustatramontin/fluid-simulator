@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 class Vec {
     public:
@@ -7,6 +8,10 @@ class Vec {
         Vec(double x, double y);       
 
         double mag();
+
+        Vec translate(double dx, double dy);
+        Vec rotate(double angle);
+        Vec rotate_around(double angle, Vec p);
 
         friend Vec operator+(const Vec& u, const Vec& v);
         friend Vec operator-(const Vec& u, const Vec& v);
@@ -18,7 +23,9 @@ class Vec {
         
         Vec operator=(const Vec& v);
         Vec operator+=(const Vec& v);
+        Vec operator-=(const Vec& v);
         Vec operator*=(const double a);
+        Vec operator/=(const double a);
 
         friend std::ostream& operator<<(std::ostream& os, const Vec& obj);
  
@@ -33,4 +40,20 @@ public:
 
     Particle(Vec x, double m);
     void swap_x();
+};
+
+using Segment = std::pair<Vec, Vec>;
+using Point = Vec;
+
+class Box {
+
+    std::vector<Segment> segments;
+
+public:
+    Box();
+    std::vector<Segment> get_segments();
+    static Box square(Point center, int size);
+    Box & add_segment(Point p1, Point p2);
+    std::pair<bool, Point> point_outside(Point p, Segment s);
+    std::pair<bool, Point>point_outside_box(Point p);
 };
