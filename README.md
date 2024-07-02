@@ -2,7 +2,9 @@
 A basic water simulator. In the hamiltonian approach of fluid simulation.
 Heavily based on [Particle-based Fluid Simulation](https://cg.informatik.uni-freiburg.de/course_notes/sim_10_sph.pdf) article.
 ## Run
+On the main directory
 ```
+make compile
 cd python_gui/
 python3 main.py
 ```
