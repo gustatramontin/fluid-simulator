@@ -14,8 +14,8 @@ struct PhysicsConfig {
     Vec gravity_f = Vec(0,-1);
 
     double fluid_density = 1;
-    double pressure_multiplier = 20;
-    double smoothing_radius = 15;
+    double pressure_multiplier = 10;
+    double smoothing_radius = 5;
 };
 
 void simulator(struct PhysicsConfig & physicsConfig, struct VisualsConfig & visualsConfig) {

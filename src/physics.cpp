@@ -2,11 +2,12 @@
 
 Physics::Physics(int num_of_particles, double rho, double k, double h): fluid_density{rho}, pressure_multiplier{k}, smoothing_radius{h} {
 
-    box = Box::square(Vec(0,0), 400);
+    box_angle = 0;
+    box = Box::square(Vec(0,0), 300, box_angle);
     double gap = 2;
     int square_size = sqrt(num_of_particles);
 
-    volume = 400*400/2;
+    volume = 300*300/2;
 
     double particle_mass = fluid_density*(volume/num_of_particles);
 
@@ -40,30 +41,22 @@ double Physics::W(Vec x) {
 }
 // Todo: calculate for any r
 Vec Physics::grad_W(Vec x) {
-    /*double r = smoothing_radius;
+    double r = smoothing_radius;
     double a = 5.0/(15.0*M_PI*r*r);
 
-    double dist = (xi - xj).mag();
-    if (dist == 0) return Vec(0, 0);
+    double dist = x.mag();
 
     double q = dist/r;
 
     double res = 0;
-    if (q >= 0*r && q < 1*r)
-        res = a*(-3*pow(2-q,2) + 12*pow(1-q,2));
-    if (q >= 1*r && q < 2*r)
-        res = a*-3*pow(2-q,2);
+    if (q >= 0 && q < 1)
+        res = (-3*pow(2-q,2) + 12*pow(1-q,2));
+    if (q >= 1 && q < 2)
+        res = -3*pow(2-q,2);
 
-    return -1*((xi-xj)*(1/dist))*res;*/
+    if (dist == 0) return Vec(0,0);
+    return a*(x/(dist*r))*res;
 
-    double step = 0.001f;
-
-    double dx = W(x + Vec(1,0)*step) - W(x);
-    double dy = W(x + Vec(0,1)*step) - W(x);
-
-    Vec grad = Vec(dx,dy)/step;
-
-    return grad;
 }
 
 
@@ -97,7 +90,7 @@ void Physics::step() {
 
     for (Particle &p : particles) {
         
-        apply_force(p, gravity_f);
+        p.v += gravity_f;
         p.next_x = p.x + p.v;
 
         p.swap_x();
@@ -108,19 +101,21 @@ void Physics::step() {
     }
 
     for (Particle &p : particles) {
-        p.swap_x();
         Vec pressuref = pressure_force(p);
 
-        p.v = pressuref;
+        p.v += pressuref;
 
-        apply_force(p, gravity_f);
+        //apply_force(p, gravity_f);
         //std::cout << pressuref << std::endl;
 
         retraction_force(p);
 
 
+        p.swap_x();
         move(p);
         resolve_wall_collision(p);
+        box_angle += 0.00001;
+        box = Box::square(Vec(0,0), 300, box_angle);
     }
 }
 
@@ -143,7 +138,7 @@ void Physics::retraction_force(Particle & p) {
 }
 
 void Physics::resolve_wall_collision(Particle &p) {
-	double velocity_loss = 0.80;
+	double velocity_loss = 0.20;
         
         auto ps = box.point_outside_box(p.x);
         if (ps.first) {

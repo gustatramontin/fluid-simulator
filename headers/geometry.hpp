@@ -37,11 +37,12 @@ class Vec {
 class Particle {
 public:
     Vec x, v;
-    Vec next_x;
+    Vec next_x, next_v;
     double m, density, pressure;
 
     Particle(Vec x, double m);
     void swap_x();
+    void swap_v();
 };
 
 using Segment = std::pair<Vec, Vec>;
@@ -55,7 +56,7 @@ public:
     Box();
     static double clamp(double x, double min, double max);
     std::vector<Segment> get_segments();
-    static Box square(Point center, int size);
+    static Box square(Point center, int size, double angle);
     Box & add_segment(Point p1, Point p2);
     std::pair<bool, Point> point_outside(Point p, Segment s);
     std::pair<bool, Point>point_outside_box(Point p);

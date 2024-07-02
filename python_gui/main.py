@@ -14,12 +14,11 @@ grid_value = StringVar(value="0")
 particle_value = StringVar(value="1")
 contour_value = StringVar(value="1")
 
-gravity_value = StringVar(value="1")
 gravity_scalar = StringVar(value="1")
 
 fluid_value = StringVar(value="1")
-pressure_value = StringVar(value="20")
-smoothing_value = StringVar(value="15")
+pressure_value = StringVar(value="10")
+smoothing_value = StringVar(value="5")
 
 check_button = {
         "onvalue": "1",
@@ -53,9 +52,6 @@ def on_particles():
 def on_contour():
     global contour_value
     update("c", contour_value.get())
-def on_gravity():
-    global gravity_value
-    update("G", gravity_value)
 def on_gravity_f(e):
     global gravity_scalar;
     update("G",gravity_scalar.get())
@@ -76,12 +72,10 @@ draw_grid = Checkbutton(text="Display Grid", command=on_grid, variable=grid_valu
 draw_particles = Checkbutton(text="Show Particles", command=on_particles, variable=particle_value, **check_button)
 draw_contour = Checkbutton(text="Draw Contour", command=on_contour, variable=contour_value, **check_button)
 
-gravity = Checkbutton(text="Enable Gravity", command=on_gravity, variable=gravity_value, **check_button)
-
 fluid_density = Scale(from_=0.1, to=2, command=on_fluid, variable=fluid_value)
-pressure_multiplier = Scale(from_=0.1, to=30, command=on_pressure, variable=pressure_value)
+pressure_multiplier = Scale(from_=0.1, to=20, command=on_pressure, variable=pressure_value)
 smoothing_radius = Scale(from_=1, to=20, command=on_smoothing, variable=smoothing_value)
-gravity_force = Scale(from_=0.1, to=10, command=on_gravity_f, variable=gravity_scalar)
+gravity_force = Scale(from_=0, to=10, command=on_gravity_f, variable=gravity_scalar)
 
 label1 = Label(text="Fluid Density")
 label12 = Label(textvariable=fluid_value)
@@ -93,7 +87,7 @@ label4 = Label(text="Gravity Scalar")
 label42 = Label(textvariable=gravity_scalar)
 
 
-widgets = [pause_btn, draw_grid, draw_particles, draw_contour, gravity, label1, fluid_density, label12, label2, pressure_multiplier, label22, label3, smoothing_radius, label32, label4, gravity_force, label42]
+widgets = [pause_btn, draw_grid, draw_particles, draw_contour, label1, fluid_density, label12, label2, pressure_multiplier, label22, label3, smoothing_radius, label32, label4, gravity_force, label42]
 
 for w in widgets:
     w.pack()

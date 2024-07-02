@@ -9,13 +9,18 @@ double Box::clamp(double x, double min, double max) {
     return x;
 }
 
-Box Box::square(Point center, int size) {
+Box Box::square(Point center, int size, double angle=0) {
     Box b;
     
     Point corner1 = center + Point(-size/2, +size/2);
     Point corner2 =  corner1 + Point(size, 0);
     Point corner3 =  corner2 + Point(0, -size);
     Point corner4 =  corner1 + Point(0, -size);
+
+    corner1 = corner1.rotate_around(angle, center);
+    corner2 = corner2.rotate_around(angle, center);
+    corner3 = corner3.rotate_around(angle, center);
+    corner4 = corner4.rotate_around(angle, center);
 
 
     b

@@ -10,6 +10,7 @@
 class Physics {
 
     Box box;
+    double box_angle;
     double volume;
     std::vector<Particle> particles;
     double W(Vec x);
