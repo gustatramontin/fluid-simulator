@@ -47,9 +47,11 @@ void Visuals::draw_line(pixel p1, pixel p2) {
     SDL_RenderDrawLine(r, p1.first, p1.second, p2.first, p2.second);
 }
 void Visuals::draw(Box b) {
+    toggle_color({255,255,255,255});
     for (auto s : b.get_segments()) {
         draw_line(to_pixel(s.first), to_pixel(s.second));
     }
+    toggle_color({255,255,255,255});
 }
 
 void Visuals::draw_pressure() {
